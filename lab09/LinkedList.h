@@ -8,122 +8,169 @@
 using namespace std;
 
 template<typename T>
-class LinkedList {
-public:
-    struct Node{
-        T data;
-        Node* next;
-        Node* prev;
-        Node(T _data, Node *_next = nullptr, Node *_prev = nullptr) : data(_data), next(_next), prev(_prev){}
-    };
-    Node *first = nullptr;
-    Node *last = nullptr;
-    class Iterator{
-    private:
-        Node *IteratorNode;
-    public:
-        Iterator();
-        Iterator(Node* value);
-        T operator*() const;
-        Iterator& operator++();
-        Iterator& operator--();
-        bool operator==(Iterator const& rhs);
-        bool operator!=(Iterator const& rhs);
-    };
-    LinkedList<T>();
-    Iterator begin() const;
-    Iterator tail() const;
-    Iterator end() const;
-    bool isEmpty() const;
-    T getFront() const;
-    T getBack() const;
-    bool contains(T element) const;
-    void enqueue (T element);
-    void dequeue();
-    void pop();
-    void clear();
-    void remove(T element);
-private:
-    Iterator myIterator;
+struct Node
+{
+    T data;
+    Node *next;
+    Node *prev;
+    Node(T _data, Node *_prev, Node *_next = nullptr) : data(_data), prev(_prev), next(_next){}
 };
 
 template<typename T>
-LinkedList::Iterator::Iterator()
-{
-    IteratorNode = nullptr;
-}
-LinkedList::Iterator::Iterator(Node* value)
-{
-    IteratorNode = value;
-}
+class LinkedList {
+public:
 
-template<typename T>
-Iterator Linkedlist::Iterator::current(){
-    return IteratorNode;
-}
-template<typename T>
-T LinkedList::Iterator::operator*() const{
-    return IteratorNode->next->data;
-}
-template<typename T>
-Iterator& LinkedList::Iterator::operator++(){
-    Iterator theIterator = *IteratorNode
-    IteratorNode = IteratorNode->next;
-    return theIterator;
-}
-template<typename T>
-Iterator& LinkedList::Iterator::operator--(){
-    Iterator theIterator = *IteratorNode
-    IteratorNode = IteratorNode->prev;
-    return theIterator;
-}
-template<typename T>
-bool LinkedList::Iterator::operator==(Iterator const& rhs){
-    return IteratorNode == rhs.IteratorNode;
-}
-template<typename T>
-bool LinkedList::Iterator::operator!=(Iterator const& rhs){
-    return IteratorNode != rhs.IteratorNode;
-}
+    Node<T> *first = nullptr;
+    Node<T> *last = nullptr;
+    class Iterator{
+    public:
+        Node<T> *IteratorNode;
+        Iterator()
+        {
+            IteratorNode->next = nullptr;
+            IteratorNode->prev = nullptr;
+        }
+        T operator*() const
+        {
+            return IteratorNode->data;
+        }
+        Iterator& operator++(){
+            Iterator theIterator = *IteratorNode;
+            IteratorNode = IteratorNode->next;
+            return theIterator;
+        }
+        Iterator& operator--(){
+            Iterator theIterator = *IteratorNode;
+            IteratorNode = IteratorNode->prev;
+            return theIterator;
+        }
+        bool operator==(Iterator const& rhs)
+        {
+            return IteratorNode == rhs.IteratorNode;
+        }
+        bool operator!=(Iterator const& rhs)
+        {
+            return IteratorNode != rhs.IteratorNode;
+        }
+    };
+private:
+    Iterator myIterator;
+public:
+    Iterator begin() const
+    {
+        while(true){
+            if (myIterator.IteratorNode->prev==nullptr) break;  //stop when reach start
+            myIterator=myIterator.IteratorNode->prev;    //go back one
+        }
+        return  myIterator;
+    }
+    Iterator tail() const
+    {
+        while(true)
+        {
+            if(myIterator.IteratorNode->next==nullptr) break;
+            myIterator=myIterator.IteratorNode->next;
+        }
+        return myIterator;
+    }
+    Iterator end() const
+    {
+        while(true)
+        {
+            if(myIterator.IteratorNode->next==nullptr) break;
+            myIterator=myIterator.IteratorNode->next;
+        }
+        myIterator++;
+        return myIterator;
+    }
+    bool isEmpty() const
+    {
+        if (first == nullptr)
+            return true;
+        else
+            return false;
+    }
+    T getFront() const
+    {
+        return first->data;
+    }
+    T getBack() const
+    {
+        return last->data;
+    }
+    bool contains(T element) const
+    {
+        myIterator.IteratorNode = first;
+        while(myIterator.IteratorNode->next != nullptr)
+        {
+            if(myIterator.IteratorNode->data == element)
+                return true;
+        }
+        return false;
+    }
+    void enqueue (T element)
+    {
+        Node<T>* newNode;
+        if (first == nullptr)
+        {
+            newNode = new Node(element, nullptr);
+        }
+        else
+        {
+            newNode = new Node(element, last);
+        }
+        if (first == nullptr)
+        {
+            first = last = newNode;
+        }
+        else
+        {
+            last->next = newNode;
+            last = newNode;
+        }
+    }
+    void dequeue()
+    {
+        Node<T> *removeMe = first;
+        if (last == first)
+            last = nullptr;
+        first = first->next; //make first point to second one
+        delete removeMe; //delete the last one
+    }
+    void pop()
+    {
+        Node<T> *removeMe = last;
+        if (last == first)
+            first = nullptr;
+        last = last->prev; //make last point to second last one
+        delete removeMe; //delete the last one
 
-// linkedList methods
-template<typename T>
-LinkedList::LinkedList<T>()
-{
-    Node *first = nullptr;
-    Node *last = nullptr;
-}
-template<typename T>
-Iterator LinkedList::begin() const
-{
-    return Iterator(first);
-}
-template<typename T>
-Iterator LinkedList::tail() const
-{
-    return Iterator(last);
-}
-template<typename T>
-LinkedList::Iterator end() const
-{
-    return Iterator(last)++;
-}
-template<typename T>
-bool isEmpty() const
-{
-    if (first = nullptr)
-        return True;
-    else
-        return False;
-}
-template<typename T>
-T getFront() const
-{
-    return *first;
-}
-template<typename T>
-T getBack() const
-{
-    return *last;
-}
+    }
+    void clear(){
+        while(last!=nullptr) //while there is still element in list
+        {
+            Node<T> *temp = last;
+            last = last->prev;
+            delete temp;
+        }
+    }
+    void remove(T element)
+    {
+        Node<T> *temp=first; //create temp so the pointer before os not lost
+        while(temp->data!=element){
+            if(temp==nullptr){
+                cout<<"no such element in the list";
+                break;
+            }
+            temp=temp->next;
+        }
+        if(temp->data==element){
+            Node<T> *removeMe=temp;
+            temp=temp->prev; //connect the Node before the removed-Node to the Node after the removed-Node
+            temp=removeMe->next;
+
+            delete removeMe;
+        }
+    }
+};
 #endif //LAB09_LINKEDLIST_H
